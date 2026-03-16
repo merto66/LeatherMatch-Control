@@ -1,0 +1,205 @@
+<Window x:Class="LeatherMatchControl.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="LeatherMatch Control"
+        Height="520" Width="420"
+        MinHeight="520" MinWidth="420"
+        ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen"
+        Background="#FAFAFA"
+        Icon="Assets/app-icon.ico"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <!-- Base button style -->
+        <Style x:Key="BaseButton" TargetType="Button">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="StartButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Background" Value="#4CAF50"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="StopButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Background" Value="#F44336"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Background" Value="#D4EEF6"/>
+            <Setter Property="Foreground" Value="#2D8BA8"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#ADD8E6" Padding="20,14">
+            <TextBlock Text="LeatherMatch Control"
+                       Foreground="#1B5E7A"
+                       FontFamily="Segoe UI"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Status Area -->
+        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <!-- Status Indicator Circle -->
+            <Grid HorizontalAlignment="Center" Margin="0,0,0,16">
+                <Ellipse x:Name="StatusIndicator"
+                         Width="100" Height="100"
+                         Fill="#9E9E9E">
+                    <Ellipse.Effect>
+                        <DropShadowEffect Color="#9E9E9E" BlurRadius="20" ShadowDepth="0" Opacity="0.4"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+                <Ellipse Width="80" Height="80" Fill="#FAFAFA" Opacity="0.15"/>
+            </Grid>
+
+            <!-- Status Text -->
+            <TextBlock x:Name="StatusText"
+                       Text="Durum kontrol ediliyor..."
+                       FontFamily="Segoe UI"
+                       FontSize="20"
+                       FontWeight="SemiBold"
+                       Foreground="#2C3E50"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,6"/>
+
+            <!-- Detail Text -->
+            <TextBlock x:Name="DetailText"
+                       Text=""
+                       FontFamily="Segoe UI"
+                       FontSize="12"
+                       Foreground="#757575"
+                       HorizontalAlignment="Center"
+                       TextWrapping="Wrap"
+                       MaxWidth="320"
+                       Margin="0,0,0,8"/>
+
+            <!-- Last Check Time -->
+            <TextBlock x:Name="LastCheckText"
+                       Text=""
+                       FontFamily="Segoe UI"
+                       FontSize="11"
+                       Foreground="#9E9E9E"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Scheduled Start Time -->
+            <TextBlock x:Name="ScheduledStartText"
+                       Text=""
+                       FontFamily="Segoe UI"
+                       FontSize="11"
+                       Foreground="#9E9E9E"
+                       HorizontalAlignment="Center"
+                       Margin="0,3,0,0"/>
+
+            <!-- Scheduled Stop Time -->
+            <TextBlock x:Name="ScheduledStopText"
+                       Text=""
+                       FontFamily="Segoe UI"
+                       FontSize="11"
+                       Foreground="#9E9E9E"
+                       HorizontalAlignment="Center"
+                       Margin="0,3,0,0"/>
+        </StackPanel>
+
+        <!-- Action Buttons -->
+        <Grid Grid.Row="2" Margin="24,0,24,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="BtnStart"
+                    Grid.Column="0"
+                    Content="&#xE768;  Sunucuyu Başlat"
+                    Style="{StaticResource StartButton}"
+                    Click="BtnStart_Click"/>
+
+            <Button x:Name="BtnStop"
+                    Grid.Column="2"
+                    Content="&#xE71A;  Sunucuyu Durdur"
+                    Style="{StaticResource StopButton}"
+                    Click="BtnStop_Click"/>
+        </Grid>
+
+        <!-- Secondary Buttons -->
+        <Grid Grid.Row="3" Margin="24,0,24,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="BtnRefresh"
+                    Grid.Column="0"
+                    Content="Durumu Yenile"
+                    Style="{StaticResource SecondaryButton}"
+                    Click="BtnRefresh_Click"/>
+
+            <Button x:Name="BtnSettings"
+                    Grid.Column="2"
+                    Content="Ayarlar"
+                    Style="{StaticResource SecondaryButton}"
+                    Click="BtnSettings_Click"/>
+        </Grid>
+
+        <!-- Footer: Working Directory -->
+        <Border Grid.Row="4" Background="#E8F4F8" Padding="16,10">
+            <TextBlock x:Name="PathText"
+                       Text="Klasör: C:\LeatherMatch"
+                       FontFamily="Segoe UI"
+                       FontSize="10.5"
+                       Foreground="#6BA8BF"
+                       TextTrimming="CharacterEllipsis"
+                       HorizontalAlignment="Center"/>
+        </Border>
+    </Grid>
+</Window>

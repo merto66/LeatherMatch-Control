@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeatherMatch Control — UI Önizleme</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #16213e;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 48px;
+    padding: 40px 24px 60px;
+    min-height: 100vh;
+    flex-wrap: wrap;
+  }
+
+  .screen-wrap { display: flex; flex-direction: column; align-items: center; }
+  .screen-label {
+    color: #7ec8e3;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* ─── WPF shell ─── */
+  .wpf-window {
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+  }
+  .title-bar {
+    background: #2a2a2a;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .tb-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .title-bar-text {
+    flex: 1; text-align: center; color: #bbb;
+    font-size: 10.5px; margin-right: 33px;
+  }
+
+  /* ══════════════════════════════════
+     MAIN WINDOW  (420 × 560)
+  ══════════════════════════════════ */
+  .main-window { width: 420px; background: #FAFAFA; }
+
+  .main-header {
+    background: #ADD8E6;
+    padding: 14px 20px;
+    text-align: center;
+    font-size: 18px; font-weight: 600; color: #1B5E7A;
+  }
+
+  .status-area {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 28px 20px 18px; gap: 0;
+    flex: 1;
+  }
+
+  .circle-wrap {
+    width: 100px; height: 100px;
+    margin-bottom: 16px; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .circle {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: #4CAF50;
+    box-shadow: 0 0 28px 8px rgba(76,175,80,0.42);
+    transition: background .35s, box-shadow .35s;
+  }
+  .circle-inner {
+    position: absolute; width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(250,250,250,0.15);
+  }
+
+  .status-text {
+    font-size: 20px; font-weight: 600; color: #2C3E50;
+    margin-bottom: 6px; text-align: center;
+  }
+  .detail-text {
+    font-size: 12px; color: #757575;
+    text-align: center; max-width: 320px;
+    margin-bottom: 8px; line-height: 1.5;
+  }
+  .last-check-text {
+    font-size: 11px; color: #9E9E9E; text-align: center;
+    margin-bottom: 3px;
+  }
+
+  /* ── NEW: scheduled time rows ── */
+  .sched-row {
+    font-size: 11px; color: #9E9E9E;
+    text-align: center;
+    margin-top: 3px;
+    display: flex; align-items: center;
+    gap: 5px; justify-content: center;
+  }
+  .badge {
+    display: inline-block; padding: 1px 7px;
+    border-radius: 4px; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.2px; line-height: 18px;
+  }
+  .badge-start { background: #E8F5E9; color: #2E7D32; }
+  .badge-stop  { background: #FFEBEE; color: #C62828; }
+  .badge-off   { background: #F5F5F5; color: #BDBDBD; }
+
+  /* annotation arrow */
+  .annotation {
+    position: relative;
+    width: 420px;
+    display: flex; flex-direction: column; gap: 3px;
+    margin-top: 8px;
+  }
+  .ann-line {
+    font-size: 10.5px; color: #7ec8e3; opacity: 0.9;
+    padding-left: 12px; border-left: 2px solid #2D8BA8;
+  }
+
+  .action-row { display: flex; gap: 12px; padding: 0 24px 12px; }
+  .action-row .btn {
+    flex: 1; height: 48px; border: none; border-radius: 10px;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; color: white; transition: opacity .15s;
+  }
+  .btn-start { background: #4CAF50; }
+  .btn-stop  { background: #F44336; }
+
+  .secondary-row { display: flex; gap: 12px; padding: 0 24px 8px; }
+  .secondary-row .btn {
+    flex: 1; height: 38px; border: none; border-radius: 10px;
+    font-family: inherit; font-size: 12.5px; font-weight: 400;
+    cursor: pointer; background: #D4EEF6; color: #2D8BA8;
+    transition: opacity .15s;
+  }
+
+  .main-footer {
+    background: #E8F4F8; padding: 10px 16px;
+    text-align: center; font-size: 10.5px; color: #6BA8BF;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* ══════════════════════════════════
+     SETTINGS WINDOW  (440 × auto)
+  ══════════════════════════════════ */
+  .settings-window { width: 440px; background: #FAFAFA; }
+
+  .settings-header {
+    background: #ADD8E6; padding: 14px 20px;
+    text-align: center; font-size: 16px; font-weight: 600; color: #1B5E7A;
+  }
+
+  .settings-body {
+    padding: 20px 24px 0; display: flex; flex-direction: column;
+  }
+
+  .section-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.2px; color: #6BA8BF;
+    margin-bottom: 9px; margin-top: 16px;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  .field-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  .field-label { font-size: 12.5px; color: #2C3E50; min-width: 110px; }
+  .field-input {
+    flex: 1; height: 34px;
+    border: 1.5px solid #D4EEF6; border-radius: 7px;
+    background: white; padding: 0 10px;
+    font-family: inherit; font-size: 12.5px; color: #2C3E50; outline: none;
+  }
+  .field-input.readonly { background: #F5F5F5; cursor: default; }
+  .browse-btn {
+    height: 34px; padding: 0 12px; border: none;
+    border-radius: 7px; background: #D4EEF6; color: #2D8BA8;
+    font-family: inherit; font-size: 12px; cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .check-row {
+    display: flex; align-items: center; gap: 9px;
+    margin-bottom: 8px; cursor: pointer;
+  }
+  .check-box {
+    width: 17px; height: 17px; border: 2px solid #2D8BA8;
+    border-radius: 4px; background: white;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background .15s;
+  }
+  .check-box.on { background: #2D8BA8; }
+  .check-box.on::after {
+    content: '';
+    width: 4px; height: 8px;
+    border: 2px solid white;
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translateY(-1px); display: block;
+  }
+  .check-label { font-size: 13px; color: #2C3E50; user-select: none; }
+
+  .time-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px; padding-left: 26px;
+    transition: opacity .2s;
+  }
+  .time-label { font-size: 12px; color: #757575; min-width: 100px; }
+  .time-input {
+    width: 78px; height: 34px;
+    border: 1.5px solid #D4EEF6; border-radius: 7px;
+    background: white; padding: 0 10px;
+    font-family: inherit; font-size: 13px;
+    color: #2C3E50; text-align: center; outline: none;
+  }
+  .time-hint { font-size: 10.5px; color: #BDBDBD; }
+
+  .divider { height: 1px; background: #EEF5F8; margin: 14px 0 4px; }
+
+  .settings-footer {
+    padding: 14px 24px 18px;
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .settings-footer button {
+    height: 38px; padding: 0 22px; border: none; border-radius: 10px;
+    font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .btn-cancel { background: #EEEEEE; color: #757575; }
+  .btn-save   { background: #2D8BA8; color: white; }
+
+  /* ─── interactive controls ─── */
+  .controls {
+    margin-top: 12px; display: flex; gap: 6px;
+    flex-wrap: wrap; justify-content: center; max-width: 420px;
+  }
+  .ctrl-btn {
+    padding: 4px 11px; border-radius: 6px; border: none;
+    font-size: 11px; cursor: pointer; font-family: inherit;
+    opacity: 0.9;
+  }
+  .ctrl-hint {
+    color: #4a6fa5; font-size: 10px; text-align: center;
+    margin-top: 6px; letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ MAIN WINDOW ══ -->
+<div class="screen-wrap">
+  <div class="screen-label">Ana Pencere · MainWindow.xaml</div>
+  <div class="wpf-window main-window">
+    <div class="title-bar">
+      <div class="tb-dot" style="background:#ff5f57"></div>
+      <div class="tb-dot" style="background:#febc2e"></div>
+      <div class="tb-dot" style="background:#28c840"></div>
+      <span class="title-bar-text">LeatherMatch Control</span>
+    </div>
+
+    <div class="main-header">LeatherMatch Control</div>
+
+    <div class="status-area">
+      <div class="circle-wrap">
+        <div class="circle" id="circle"></div>
+        <div class="circle-inner"></div>
+      </div>
+
+      <div class="status-text" id="statusTxt">Sunucu Çalışıyor</div>
+      <div class="detail-text">container: leather-api | healthy</div>
+
+      <!-- mevcut satır -->
+      <div class="last-check-text">Son kontrol: 09:03:47</div>
+
+      <!-- YENİ: zamanlama satırları -->
+      <div class="sched-row">
+        <span>Planlanan açılış:</span>
+        <span class="badge badge-start" id="startBadge">09:00</span>
+      </div>
+      <div class="sched-row">
+        <span>Planlanan kapanış:</span>
+        <span class="badge badge-stop" id="stopBadge">18:00</span>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-start">▶  Sunucuyu Başlat</button>
+      <button class="btn btn-stop">■  Sunucuyu Durdur</button>
+    </div>
+    <div class="secondary-row">
+      <button class="btn">Durumu Yenile</button>
+      <button class="btn">Ayarlar</button>
+    </div>
+    <div class="main-footer">Klasör: C:\LeatherMatch</div>
+  </div>
+
+  <!-- açıklama -->
+  <div class="annotation">
+    <div class="ann-line">LastCheckText — mevcut, değişmiyor</div>
+    <div class="ann-line" style="border-color:#2E7D32;color:#66bb6a">ScheduledStartText — <b>YENİ</b> TextBlock</div>
+    <div class="ann-line" style="border-color:#C62828;color:#ef9a9a">ScheduledStopText — <b>YENİ</b> TextBlock</div>
+  </div>
+
+  <!-- demo butonları -->
+  <div class="controls">
+    <button class="ctrl-btn" onclick="setStatus('running')"   style="background:#4CAF50;color:white">Çalışıyor</button>
+    <button class="ctrl-btn" onclick="setStatus('stopped')"   style="background:#F44336;color:white">Durduruldu</button>
+    <button class="ctrl-btn" onclick="setStatus('starting')"  style="background:#FFC107;color:#333">Başlatılıyor</button>
+    <button class="ctrl-btn" onclick="setStatus('unknown')"   style="background:#9E9E9E;color:white">Bilinmiyor</button>
+    <button class="ctrl-btn" onclick="toggleSchedule()"       style="background:#D4EEF6;color:#2D8BA8">Zamanlama Aç/Kapat</button>
+  </div>
+  <div class="ctrl-hint">↑ Durumu değiştirerek önizle</div>
+</div>
+
+
+<!-- ══ SETTINGS WINDOW ══ -->
+<div class="screen-wrap">
+  <div class="screen-label">Ayarlar Penceresi · SettingsWindow.xaml</div>
+  <div class="wpf-window settings-window">
+    <div class="title-bar">
+      <div class="tb-dot" style="background:#ff5f57"></div>
+      <div class="tb-dot" style="background:#febc2e"></div>
+      <div class="tb-dot" style="background:#28c840"></div>
+      <span class="title-bar-text">Ayarlar</span>
+    </div>
+
+    <div class="settings-header">Ayarlar</div>
+
+    <div class="settings-body">
+
+      <div class="section-label">Docker Compose Yolu</div>
+      <div class="field-row">
+        <input class="field-input readonly" type="text" value="C:\LeatherMatch" readonly>
+        <button class="browse-btn">Gözat...</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-label">Otomatik Zamanlama</div>
+
+      <!-- Otomatik başlat -->
+      <div class="check-row" onclick="toggle('chkStart','startRow')">
+        <div class="check-box on" id="chkStart"></div>
+        <span class="check-label">Otomatik başlat</span>
+      </div>
+      <div class="time-row" id="startRow">
+        <span class="time-label">Başlangıç saati:</span>
+        <input class="time-input" type="text" value="09:00" placeholder="HH:mm">
+        <span class="time-hint">HH:mm</span>
+      </div>
+
+      <!-- Otomatik durdur -->
+      <div class="check-row" onclick="toggle('chkStop','stopRow')">
+        <div class="check-box on" id="chkStop"></div>
+        <span class="check-label">Otomatik durdur</span>
+      </div>
+      <div class="time-row" id="stopRow">
+        <span class="time-label">Kapanış saati:</span>
+        <input class="time-input" type="text" value="18:00" placeholder="HH:mm">
+        <span class="time-hint">HH:mm</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-label">Diğer</div>
+      <div class="field-row">
+        <span class="field-label" style="font-size:12px;color:#757575">Health Check URL</span>
+        <input class="field-input" type="text" value="http://localhost:8080/api/health">
+      </div>
+      <div class="field-row">
+        <span class="field-label" style="font-size:12px;color:#757575">Yenileme aralığı (sn)</span>
+        <input class="field-input" type="number" value="15" style="max-width:70px">
+      </div>
+    </div>
+
+    <div class="settings-footer">
+      <button class="btn-cancel">İptal</button>
+      <button class="btn-save">Kaydet</button>
+    </div>
+  </div>
+
+  <div class="ctrl-hint" style="margin-top:10px">↑ Checkbox'lara tıklayarak aç/kapat etkisini gör</div>
+</div>
+
+
+<script>
+  /* ── Status demo ── */
+  const states = {
+    running:  { c:'#4CAF50', s:'rgba(76,175,80,0.42)',   t:'Sunucu Çalışıyor' },
+    stopped:  { c:'#F44336', s:'rgba(244,67,54,0.42)',   t:'Sunucu Durduruldu' },
+    starting: { c:'#FFC107', s:'rgba(255,193,7,0.42)',   t:'Sunucu Başlatılıyor...' },
+    unknown:  { c:'#9E9E9E', s:'rgba(158,158,158,0.42)', t:'Bilinmiyor' },
+  };
+  function setStatus(s) {
+    const circ = document.getElementById('circle');
+    circ.style.background = states[s].c;
+    circ.style.boxShadow  = `0 0 28px 8px ${states[s].s}`;
+    document.getElementById('statusTxt').textContent = states[s].t;
+  }
+
+  /* ── Schedule badge toggle ── */
+  let schedOn = true;
+  function toggleSchedule() {
+    schedOn = !schedOn;
+    const sb = document.getElementById('startBadge');
+    const eb = document.getElementById('stopBadge');
+    if (schedOn) {
+      sb.textContent = '09:00'; sb.className = 'badge badge-start';
+      eb.textContent = '18:00'; eb.className = 'badge badge-stop';
+    } else {
+      sb.textContent = 'ayarlı değil'; sb.className = 'badge badge-off';
+      eb.textContent = 'ayarlı değil'; eb.className = 'badge badge-off';
+    }
+  }
+
+  /* ── Settings checkbox toggle ── */
+  function toggle(checkId, rowId) {
+    const box = document.getElementById(checkId);
+    const row = document.getElementById(rowId);
+    const isOn = box.classList.toggle('on');
+    row.style.opacity = isOn ? '1' : '0.3';
+    row.style.pointerEvents = isOn ? '' : 'none';
+  }
+</script>
+</body>
+</html>

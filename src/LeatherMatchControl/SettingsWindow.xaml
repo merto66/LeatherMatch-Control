@@ -1,0 +1,322 @@
+<Window x:Class="LeatherMatchControl.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Ayarlar"
+        Width="440"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="#FAFAFA"
+        Icon="Assets/app-icon.ico">
+
+    <Window.Resources>
+
+        <!-- Section label: küçük mavi başlık -->
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#6BA8BF"/>
+            <Setter Property="Margin" Value="0,14,0,8"/>
+        </Style>
+
+        <!-- Alan etiketi -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Foreground" Value="#757575"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="110"/>
+        </Style>
+
+        <!-- TextBox: yuvarlak köşeli custom template -->
+        <Style x:Key="SettingsTextBox" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="outerBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="#D4EEF6"
+                                BorderThickness="1.5"
+                                CornerRadius="7">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="8,0"
+                                          VerticalAlignment="Center"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="outerBorder" Property="BorderBrush" Value="#2D8BA8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="outerBorder" Property="Background" Value="#F5F5F5"/>
+                                <Setter Property="Foreground" Value="#BDBDBD"/>
+                            </Trigger>
+                            <Trigger Property="IsReadOnly" Value="True">
+                                <Setter TargetName="outerBorder" Property="Background" Value="#F5F5F5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- CheckBox: özel tasarım (önizlemeyle aynı) -->
+        <Style x:Key="ModernCheckBox" TargetType="CheckBox">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="checkBorder"
+                                    Width="14" Height="14"
+                                    BorderBrush="#2D8BA8"
+                                    BorderThickness="1.5"
+                                    CornerRadius="3"
+                                    Background="White"
+                                    VerticalAlignment="Center">
+                                <Path x:Name="checkMark"
+                                      Data="M 0,4 L 3,7 L 8,1"
+                                      Stroke="White"
+                                      StrokeThickness="1.4"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      Stretch="Uniform"
+                                      Width="7" Height="6"
+                                      Margin="0,0,0,0"
+                                      Visibility="Collapsed"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <ContentPresenter Margin="9,0,0,0"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="checkBorder" Property="Background" Value="#2D8BA8"/>
+                                <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="#1B6A84"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Buton: yuvarlak köşeli -->
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="22,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <StackPanel>
+        <!-- Header -->
+        <Border Background="#ADD8E6" Padding="20,14">
+            <TextBlock Text="Ayarlar"
+                       Foreground="#1B5E7A"
+                       FontFamily="Segoe UI"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Body -->
+        <StackPanel Margin="24,16,24,0">
+
+            <!-- Docker Compose Yolu -->
+            <TextBlock Text="DOCKER COMPOSE YOLU" Style="{StaticResource SectionLabel}" Margin="0,0,0,8"/>
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="TxtComposePath"
+                         Grid.Column="0"
+                         IsReadOnly="True"
+                         Style="{StaticResource SettingsTextBox}"
+                         Background="#F5F5F5"/>
+                <Button x:Name="BtnBrowse"
+                        Grid.Column="2"
+                        Content="Gözat..."
+                        Height="34"
+                        Padding="12,0"
+                        Background="#D4EEF6"
+                        Foreground="#2D8BA8"
+                        Style="{StaticResource ActionButton}"
+                        FontSize="12"
+                        FontWeight="Normal"
+                        Click="BtnBrowse_Click"/>
+            </Grid>
+
+            <!-- Separator -->
+            <Border Height="1" Background="#EEF5F8" Margin="0,14,0,4"/>
+
+            <!-- Otomatik Zamanlama -->
+            <TextBlock Text="OTOMATİK ZAMANLAMA" Style="{StaticResource SectionLabel}" Margin="0,4,0,10"/>
+
+            <!-- Auto Start -->
+            <StackPanel Margin="0,0,0,4">
+                <CheckBox x:Name="ChkAutoStart"
+                          Content="Otomatik başlat"
+                          Style="{StaticResource ModernCheckBox}"
+                          Margin="0,0,0,8"
+                          Checked="ChkAutoStart_Changed"
+                          Unchecked="ChkAutoStart_Changed"/>
+
+                <Grid x:Name="StartTimeRow" Margin="26,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="Başlangıç saati:"
+                               Style="{StaticResource FieldLabel}"
+                               MinWidth="0"/>
+                    <TextBox x:Name="TxtStartTime"
+                             Grid.Column="2"
+                             Style="{StaticResource SettingsTextBox}"
+                             TextAlignment="Center"
+                             MaxLength="5"/>
+                    <TextBlock Grid.Column="3"
+                               Text="  (HH:mm)"
+                               FontFamily="Segoe UI"
+                               FontSize="11"
+                               Foreground="#BDBDBD"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </StackPanel>
+
+            <!-- Auto Stop -->
+            <StackPanel Margin="0,0,0,4">
+                <CheckBox x:Name="ChkAutoStop"
+                          Content="Otomatik durdur"
+                          Style="{StaticResource ModernCheckBox}"
+                          Margin="0,0,0,8"
+                          Checked="ChkAutoStop_Changed"
+                          Unchecked="ChkAutoStop_Changed"/>
+
+                <Grid x:Name="StopTimeRow" Margin="26,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="Kapanış saati:"
+                               Style="{StaticResource FieldLabel}"
+                               MinWidth="0"/>
+                    <TextBox x:Name="TxtStopTime"
+                             Grid.Column="2"
+                             Style="{StaticResource SettingsTextBox}"
+                             TextAlignment="Center"
+                             MaxLength="5"/>
+                    <TextBlock Grid.Column="3"
+                               Text="  (HH:mm)"
+                               FontFamily="Segoe UI"
+                               FontSize="11"
+                               Foreground="#BDBDBD"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </StackPanel>
+
+            <!-- Separator -->
+            <Border Height="1" Background="#EEF5F8" Margin="0,10,0,4"/>
+
+            <!-- Diğer -->
+            <TextBlock Text="DİĞER" Style="{StaticResource SectionLabel}" Margin="0,4,0,10"/>
+
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Health Check URL" Style="{StaticResource FieldLabel}"/>
+                <TextBox x:Name="TxtHealthUrl"
+                         Grid.Column="2"
+                         Style="{StaticResource SettingsTextBox}"/>
+            </Grid>
+
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Yenileme aralığı (sn)" Style="{StaticResource FieldLabel}"/>
+                <TextBox x:Name="TxtRefreshInterval"
+                         Grid.Column="2"
+                         Style="{StaticResource SettingsTextBox}"
+                         TextAlignment="Center"
+                         MaxLength="4"/>
+            </Grid>
+        </StackPanel>
+
+        <!-- Footer -->
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="24,16,24,20">
+            <Button x:Name="BtnCancel"
+                    Content="İptal"
+                    Background="#EEEEEE"
+                    Foreground="#757575"
+                    Style="{StaticResource ActionButton}"
+                    Margin="0,0,10,0"
+                    Click="BtnCancel_Click"/>
+            <Button x:Name="BtnSave"
+                    Content="Kaydet"
+                    Background="#2D8BA8"
+                    Foreground="White"
+                    Style="{StaticResource ActionButton}"
+                    Click="BtnSave_Click"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
