@@ -191,15 +191,27 @@
                     Click="BtnSettings_Click"/>
         </Grid>
 
-        <!-- Footer: Working Directory -->
+        <!-- Footer: Working Directory + Server Address -->
         <Border Grid.Row="4" Background="#E8F4F8" Padding="16,10">
-            <TextBlock x:Name="PathText"
-                       Text="Klasör: C:\LeatherMatch"
-                       FontFamily="Segoe UI"
-                       FontSize="10.5"
-                       Foreground="#6BA8BF"
-                       TextTrimming="CharacterEllipsis"
-                       HorizontalAlignment="Center"/>
+            <StackPanel>
+                <TextBlock x:Name="PathText"
+                           FontFamily="Segoe UI"
+                           FontSize="10.5"
+                           Foreground="#6BA8BF"
+                           TextTrimming="CharacterEllipsis"
+                           HorizontalAlignment="Center"/>
+                <TextBox x:Name="ServerAddressText"
+                         FontFamily="Segoe UI"
+                         FontSize="10.5"
+                         Foreground="#6BA8BF"
+                         HorizontalAlignment="Center"
+                         Margin="0,3,0,0"
+                         IsReadOnly="True"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         TextAlignment="Center"
+                         Cursor="IBeam"/>
+            </StackPanel>
         </Border>
     </Grid>
 </Window>

@@ -1,4 +1,6 @@
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Threading;
@@ -228,6 +230,41 @@ public partial class MainWindow : System.Windows.Window
     private void UpdatePathDisplay()
     {
         PathText.Text = $"Klasör: {_settings.ComposeWorkingDirectory}";
+
+        var url = _settings.HealthCheckUrl?.Trim();
+        if (!string.IsNullOrEmpty(url))
+        {
+            try
+            {
+                var uri = new Uri(url);
+                var localIp = GetLocalIpAddress();
+                var portPart = uri.IsDefaultPort ? "" : $":{uri.Port}";
+                var localAddress = $"{uri.Scheme}://{localIp}{portPart}";
+                ServerAddressText.Text = $"Sunucu: {localAddress}";
+            }
+            catch
+            {
+                ServerAddressText.Text = $"Sunucu: {url}";
+            }
+        }
+        else
+        {
+            ServerAddressText.Text = "Sunucu adresi: ayarlı değil";
+        }
+    }
+
+    private static string GetLocalIpAddress()
+    {
+        try
+        {
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            socket.Connect("8.8.8.8", 80);
+            return ((IPEndPoint)socket.LocalEndPoint!).Address.ToString();
+        }
+        catch
+        {
+            return "localhost";
+        }
     }
 
     private void UpdateScheduleDisplay()

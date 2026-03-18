@@ -1,12 +1,16 @@
 using System.IO;
 using System.Windows;
 using LeatherMatchControl.Models;
+using LeatherMatchControl.Services;
 using MessageBox = System.Windows.MessageBox;
 
 namespace LeatherMatchControl;
 
 public partial class SettingsWindow : Window
 {
+    private readonly DockerService _dockerService = new();
+    private bool _isBusy;
+
     public AppSettings Settings { get; private set; }
 
     public SettingsWindow(AppSettings current)
@@ -88,6 +92,49 @@ public partial class SettingsWindow : Window
         Close();
     }
 
+    private async void BtnUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isBusy) return;
+
+        var workingDir = TxtComposePath.Text.Trim();
+
+        if (string.IsNullOrWhiteSpace(workingDir))
+        {
+            MessageBox.Show("Önce bir Docker Compose klasörü seçin.", "Klasör Yok",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (!HasComposeFile(workingDir))
+        {
+            MessageBox.Show("Seçili klasörde docker-compose.yml bulunamadı.", "Dosya Yok",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        _isBusy = true;
+        BtnUpdate.IsEnabled = false;
+        BtnUpdate.Content = "Güncelleniyor...";
+
+        try
+        {
+            var (success, message) = await _dockerService.UpdateServerAsync(workingDir);
+
+            if (success)
+                MessageBox.Show(message, "Güncelleme Başarılı",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            else
+                MessageBox.Show(message, "Güncelleme Hatası",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            _isBusy = false;
+            BtnUpdate.IsEnabled = true;
+            BtnUpdate.Content = "Güncelle (Update)";
+        }
+    }
+
     private void BtnCancel_Click(object sender, RoutedEventArgs e)
     {
         DialogResult = false;
@@ -134,4 +181,13 @@ public partial class SettingsWindow : Window
         => TimeOnly.TryParseExact(value.Trim(), "HH:mm",
             System.Globalization.CultureInfo.InvariantCulture,
             System.Globalization.DateTimeStyles.None, out _);
+
+    private static bool HasComposeFile(string directory)
+    {
+        if (!Directory.Exists(directory)) return false;
+        return File.Exists(Path.Combine(directory, "docker-compose.yml"))
+            || File.Exists(Path.Combine(directory, "docker-compose.yaml"))
+            || File.Exists(Path.Combine(directory, "compose.yml"))
+            || File.Exists(Path.Combine(directory, "compose.yaml"));
+    }
 }

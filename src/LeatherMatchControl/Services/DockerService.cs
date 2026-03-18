@@ -87,6 +87,28 @@ public class DockerService
         }
     }
 
+    public async Task<(bool Success, string Message)> UpdateServerAsync(string workingDirectory)
+    {
+        try
+        {
+            var (exitCode, stdout, stderr) = await RunCommandAsync(
+                "docker", "compose up -d --force-recreate", workingDirectory, ActionTimeoutMs);
+
+            if (exitCode == 0)
+                return (true, "Güncelleme uygulandı (container recreate edildi).");
+
+            return (false, $"Güncelleme hatası: {(string.IsNullOrWhiteSpace(stderr) ? stdout : stderr).Trim()}");
+        }
+        catch (TimeoutException)
+        {
+            return (false, "Docker komutu zaman aşımına uğradı");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Hata: {ex.Message}");
+        }
+    }
+
     public async Task<(bool Success, string Message)> StopServerAsync(string workingDirectory)
     {
         try

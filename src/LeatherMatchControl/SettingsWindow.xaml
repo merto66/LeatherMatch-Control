@@ -300,6 +300,22 @@
             </Grid>
         </StackPanel>
 
+        <!-- Update -->
+        <StackPanel Margin="24,0,24,0">
+            <Border Height="1" Background="#EEF5F8" Margin="0,0,0,12"/>
+            <Button x:Name="BtnUpdate"
+                    Content="Güncelle (Update)"
+                    Background="#E8F5E9"
+                    Foreground="#2E7D32"
+                    Style="{StaticResource ActionButton}"
+                    HorizontalAlignment="Stretch"
+                    Click="BtnUpdate_Click">
+                <Button.ToolTip>
+                    <ToolTip Content="Yeni image'ı devreye almak için container'ı yeniden oluşturur (veriler silinmez)."/>
+                </Button.ToolTip>
+            </Button>
+        </StackPanel>
+
         <!-- Footer -->
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Right"
